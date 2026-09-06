@@ -1,17 +1,41 @@
 # underdog-audit
 
-Registro público de auditoria dos sinais da **Underdog Tips**.
+Registro público de auditoria dos sinais da **Underdog Tips** (tênis de mesa).
 
-Cada linha de `chain.log` é `seq|timestamp|hash` — o **hash** de um sinal, publicado no
-instante do disparo, **antes do jogo**. O hash não revela o palpite (commit-reveal): o pick
-só é revelado depois que o jogo acaba, na página de auditoria.
+Cada sinal vira **um commit** neste repositório, com uma linha em [`chain.log`](chain.log):
 
-O que isso prova: como o commit tem o **carimbo de tempo do GitHub** (que a Underdog não
-controla), dá pra confirmar que o sinal existia **antes da bola rolar** — sem precisar
-confiar na palavra de ninguém.
+```
+seq | timestamp (unix) | hash
+```
 
-Como conferir: pegue um sinal liquidado na página de auditoria, monte o texto
-`seq|ts|event_id|market|side|pick|odd|signal|game_time|nonce|prev_hash`, calcule o SHA-256 e
-compare com o `hash` desta linha. Se bater, e o commit for anterior ao horário do jogo, está provado.
+O **hash** é publicado no instante do disparo — **antes do jogo**. O hash não revela o palpite
+(esquema *commit-reveal*): o pick só aparece depois que o jogo acaba, na página de auditoria.
 
-Página: https://underdog.tips/audit
+## O que isto prova — e o que NÃO prova (sendo honesto)
+
+**Prova:** que aquele hash existia num commit público **antes** do jogo começar. Como o histórico é
+aberto, dá pra confirmar que a previsão foi feita antes do resultado — sem confiar na palavra da Underdog.
+
+**Os limites, com honestidade:** este é um repositório que a Underdog controla. A *data* de um commit
+git, sozinha, pode ser manipulada, e um `force-push` é tecnicamente possível. O que protege contra isso:
+o histórico é **público**, o GitHub registra quando **recebeu** cada push, e qualquer um pode **clonar
+e espelhar** o repo — então qualquer reescrita fica visível. **Não é prova matemática absoluta; é
+transparência pública, aberta pra qualquer um auditar e denunciar.**
+
+## Como conferir um sinal (passo a passo)
+
+1. Pegue um sinal **finalizado** em https://underdog.tips/audit — toque nele (copia o hash) ou use o
+   botão **Conferir**.
+2. A página mostra o **payload** (o texto exato) e o **hash**. Confira que `SHA-256(payload)` = o hash.
+   No terminal: `printf '%s' 'COLE_O_PAYLOAD' | sha256sum`
+3. Procure esse hash aqui no [`chain.log`](chain.log) e abra o **commit** dele (aba *Commits* do GitHub,
+   ou `git log`). O horário do commit tem que ser **anterior** ao horário do jogo (que a página mostra).
+4. Bateu o hash **e** o commit veio antes do jogo? Provado.
+
+## Espelhe você mesmo
+
+Quer garantia extra? Guarde uma cópia: `git clone https://github.com/JonathanCutrim/underdog-audit`.
+Se algum dia o histórico for reescrito, a sua cópia denuncia.
+
+---
+Página de auditoria: **https://underdog.tips/audit**
